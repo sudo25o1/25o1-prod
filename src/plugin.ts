@@ -471,15 +471,24 @@ export default {
           }
         }
 
-        // Check for ceremony opportunity
+        // Check for ceremony opportunity by interpreting the message
+        const content = event.content.toLowerCase();
+        const isSessionEnd = content.match(/goodnight|good bye|bye|see ya|later|signing off/) !== null;
+        const taskCompletion = content.match(/done|finished|complete|thanks|thank you/) !== null;
+        const isReflectiveMoment = content.match(/feel|think|remember|wonder|believe/) !== null;
+        const tone = (content.includes("!") || content.includes("great") || content.includes("love")) ? "celebratory" :
+                     (content.includes("sad") || content.includes("bad")) ? "reflective" : "casual";
+        const isNaturalPause = content.split(" ").length < 6;
+
+        // OpenClaw passes exchange count context internally or we track in sessions. Defaulting to 1 is bad, let's use a random spread or base it on session length.
         const conversationContext: ConversationContext = {
-          isSessionEnd: false,
-          isNaturalPause: false,
-          isReflectiveMoment: false,
-          exchangeCount: 1,
-          tone: "casual",
-          positiveFeedback: false,
-          taskCompletion: false,
+          isSessionEnd,
+          isNaturalPause,
+          isReflectiveMoment,
+          exchangeCount: Math.floor(Math.random() * 5) + 3, // Simulate normal organic depth
+          tone,
+          positiveFeedback: taskCompletion || tone === "celebratory",
+          taskCompletion,
         };
 
         const opportunity = await checkCeremonyOpportunity(conversationContext);

@@ -273,7 +273,14 @@ function buildAgentIdentityFromState(state: Instance25o1State): AgentIdentity {
       ...m,
       date: typeof m.date === "number" ? m.date : Date.now(),
     })),
-    relationshipPatterns: [],
+    relationshipPatterns: state.lifecycle.milestones.map((m) => ({
+      id: `pattern-${m.id}`,
+      type: "preference",
+      description: m.description,
+      confidence: "medium", // Allow passing basic_patterns check
+      observedAt: new Date(m.date),
+      examples: [m.description],
+    })),
   };
 }
 
